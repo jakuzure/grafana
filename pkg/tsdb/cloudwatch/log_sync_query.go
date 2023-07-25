@@ -14,10 +14,8 @@ import (
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 )
 
-const (
-	alertMaxAttempts = 8
-	alertPollPeriod  = time.Second
-)
+const alertPollPeriod = time.Second
+var alertMaxAttempts = 8
 
 var executeSyncLogQuery = func(ctx context.Context, e *cloudWatchExecutor, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
 	resp := backend.NewQueryDataResponse()
@@ -98,6 +96,9 @@ func (e *cloudWatchExecutor) syncQuery(ctx context.Context, logsClient cloudwatc
 	ticker := time.NewTicker(alertPollPeriod)
 	defer ticker.Stop()
 
+	if logsQuery.AlertMaxAttempts != 0 {
+		alertMaxAttempts = logsQuery.AlertMaxAttempts
+	}
 	attemptCount := 1
 	for range ticker.C {
 		res, err := e.executeGetQueryResults(ctx, logsClient, requestParams)
@@ -108,7 +109,7 @@ func (e *cloudWatchExecutor) syncQuery(ctx context.Context, logsClient cloudwatc
 			return res, err
 		}
 		if attemptCount >= alertMaxAttempts {
-			return res, fmt.Errorf("fetching of query results exceeded max number of attempts")
+			return res, fmt.Errorf("fetching of query results for the alert exceeded the maximum number of attempts defined in the query")
 		}
 
 		attemptCount++

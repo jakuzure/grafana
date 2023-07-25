@@ -223,6 +223,8 @@ type CloudWatchLogsQuery struct {
 
 	// Fields to group the results by, this field is automatically populated whenever the query is updated
 	StatsGroups []string `json:"statsGroups,omitempty"`
+	// TODO
+	AlertMaxAttempts int `json:"alertMaxAttempts,omitempty"`
 }
 
 // CloudWatchMetricsQuery defines model for CloudWatchMetricsQuery.

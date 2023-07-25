@@ -209,6 +209,10 @@ export enum QueryEditorPropertyType {
   String = 'string',
 }
 
+export type AlertAttemptsPeriod = ''
+
+
+
 export interface QueryEditorArrayExpression {
   expressions: (Array<QueryEditorExpression> | Array<QueryEditorArrayExpression>);
   type: (QueryEditorExpressionType.And | QueryEditorExpressionType.Or);
@@ -245,6 +249,10 @@ export interface CloudWatchLogsQuery extends common.DataQuery {
    * Fields to group the results by, this field is automatically populated whenever the query is updated
    */
   statsGroups?: Array<string>;
+  /**
+   * TODO
+   */
+  alertMaxAttempts?: number;
 }
 
 export const defaultCloudWatchLogsQuery: Partial<CloudWatchLogsQuery> = {

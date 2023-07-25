@@ -203,7 +203,6 @@ func Test_executeSyncLogQuery_handles_RefId_from_input_queries(t *testing.T) {
 			return DataSource{Settings: models.CloudWatchSettings{}}, nil
 		})
 		executor := newExecutor(im, newTestConfig(), &fakeSessionCache{}, featuremgmt.WithFeatures())
-
 		res, err := executor.QueryData(context.Background(), &backend.QueryDataRequest{
 			Headers:       map[string]string{ngalertmodels.FromAlertHeaderName: "some value"},
 			PluginContext: backend.PluginContext{DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{}},
@@ -307,4 +306,20 @@ func Test_executeSyncLogQuery_handles_RefId_from_input_queries(t *testing.T) {
 		require.True(t, ok)
 		assert.Equal(t, []*data.Field{expectedLogFieldFromSecondCall}, respB.Frames[0].Fields)
 	})
+	t.Run("when a alertMaxAttempts field isn't provided, 8 is assigned by default", func(t *testing.T) {
+		cli = &mockLogsSyncClient{}
+		cli.On("StartQueryWithContext", mock.Anything, mock.Anything, mock.Anything).Return(&cloudwatchlogs.StartQueryOutput{
+			QueryId: aws.String("abcd-efgh-ijkl-mnop"),
+		}, nil)
+		cli.On("GetQueryResultsWithContext", mock.Anything, mock.Anything, mock.Anything).Return(&cloudwatchlogs.GetQueryResultsOutput{Status: aws.String("Running")}, nil)
+		im := datasource.NewInstanceManager(func(s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+			return DataSource{Settings: models.CloudWatchSettings{}}, nil
+		})
+		executor := newExecutor(im, newTestConfig(), &fakeSessionCache{}, featuremgmt.WithFeatures())
+
+		
+	})
+	t.Run("when a alertMaxAttempts field is provided, it is correctly assigned", func(t *testing.T) {
+
+	}
 }
